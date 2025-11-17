@@ -1,5 +1,6 @@
 # eliminate the solution, properties, & project files
 *.sln
+*.slnx
 *.csproj
 *.config
 *- Copy.cs

@@ -15,6 +15,7 @@ Console.ReadLine();
 
 internal class DayClass
 {
+    List<(char, int)> _moves = new();
 
     public DayClass()
     {
@@ -23,23 +24,74 @@ internal class DayClass
 
     public void Part1()
     {
+        int currPos = 50;
+        int zeroCount = 0;
 
-        long rslt = 0;
-
-        Console.WriteLine("Part1: {0}", rslt);
+        foreach ((char dir, int value) move in _moves)
+        {
+            int value = move.value % 100;
+            if (move.dir == 'L')
+            {
+                value = -value;
+            }
+            currPos += value;
+            if (currPos < 0)
+            {
+                currPos += 100;
+            }
+            else
+            {
+                currPos %= 100;
+            }
+            zeroCount += currPos == 0 ? 1 : 0;
+        }
+        Console.WriteLine("Part1: {0}", zeroCount);
     }
 
     public void Part2()
     {
+        int zeroCount = 0;
+        int prevPos = 50;
+        int currPos;
 
-        long rslt = 0;
+        foreach ((char dir, int value) move in _moves)
+        {
+            zeroCount += move.value / 100;
+            int value = move.value % 100;
 
-        Console.WriteLine("Part2: {0}", rslt);
+            if (move.dir == 'L')
+            {
+                value = -value;
+                currPos = prevPos + value;
+                if (currPos < 0)
+                {
+                    currPos += 100;
+                    if (prevPos != 0)
+                    {
+                        zeroCount++;
+                    }
+                }
+            }
+            else
+            {
+                currPos = prevPos + value;
+                if (currPos > 100)
+                {
+                    zeroCount++;
+                }
+                currPos %= 100;
+            }
+
+            zeroCount += currPos == 0 ? 1 : 0;
+            prevPos = currPos;
+        }
+
+        Console.WriteLine("Part2: {0}", zeroCount);
     }
 
     private void LoadData()
     {
-        string inputFile = AppDomain.CurrentDomain.BaseDirectory + @"..\..\..\test.txt";
+        string inputFile = AppDomain.CurrentDomain.BaseDirectory + @"..\..\..\input.txt";
 
         if (File.Exists(inputFile))
         {
@@ -47,7 +99,8 @@ internal class DayClass
             StreamReader file = new StreamReader(inputFile);
             while ((line = file.ReadLine()) != null)
             {
-                // Process the string
+                int value = Convert.ToInt32(line.Substring(1));
+                _moves.Add((line[0],value));
             }
 
             file.Close();

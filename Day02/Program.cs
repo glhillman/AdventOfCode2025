@@ -13,9 +13,20 @@ Console.WriteLine("Execution Time: {0} ms", watch.ElapsedMilliseconds);
 Console.Write("Press Enter to continue...");
 Console.ReadLine();
 
+public struct NumRange
+{
+    public NumRange(long first, long last)
+    {
+        First = first;
+        Last = last;
+    }
+    public long First { get; private set; }
+    public long Last { get; private set; }
+}
+
 internal class DayClass
 {
-    List<(long first, long last)> _values = new();
+    List<NumRange> _values = new();
 
     public DayClass()
     {
@@ -26,17 +37,22 @@ internal class DayClass
     {
         long invalidSum = 0;
 
-        foreach ((long first, long last) pair in _values)
+        for (int i = 0; i < _values.Count; i++) 
         {
-            for (long i = pair.first; i <= pair.last; i++)
+            for (long value = _values[i].First; value <= _values[i].Last; value++)
             {
-                string iStr = i.ToString();
-                if (iStr.Length % 2 == 0)
+                int nDigits = NDigits(value);
+                if (nDigits % 2 == 0)
                 {
-                    int mid = iStr.Length / 2;
-                    if (iStr.Substring(0, mid) == iStr.Substring(mid))
+                    long divisor = 10;
+                    int j = nDigits / 2 - 1;
+                    while (j-- > 0)
+                    { 
+                        divisor *= 10;
+                    }
+                    if (value % divisor == value / divisor)
                     {
-                        invalidSum += i;
+                        invalidSum += value;
                     }
                 }
             }
@@ -45,35 +61,49 @@ internal class DayClass
         Console.WriteLine("Part1: {0}", invalidSum);
     }
 
+    static public int NDigits(long l)
+    {
+        return (int)(Math.Log10(l) + 1);
+    }
+
     public void Part2()
     {
         long invalidSum = 0;
 
-        foreach ((long first, long last) pair in _values)
+        for (int i = 0; i < _values.Count; i++)
         {
-            for (long i = pair.first; i <= pair.last; i++)
+            for (long value = _values[i].First; value <= _values[i].Last; value++)
             {
-                string iStr = i.ToString();
-                int iStrLen = iStr.Length;
-                int subMax = iStr.Length / 2;
+                int nDigits = NDigits(value);
+                int subMax = nDigits / 2;
                 for (int iSubLen = 1; iSubLen <= subMax; iSubLen++)
                 {
-                    if (iStrLen % iSubLen == 0)
+                    if (nDigits % iSubLen == 0)
                     {
-                        string toMatch = iStr.Substring(0, iSubLen);
-                        bool isInValid = true;
-                        int iSubIndex = iSubLen;
-                        while (isInValid && iSubIndex < iStrLen)
+                        long tempValue = value;
+                        long saveValue = value;
+                        long divisor = 10;
+                        int j = iSubLen - 1;
+                        while (j-- > 0)
                         {
-                            isInValid = toMatch == iStr.Substring(iSubIndex, iSubLen);
+                            divisor *= 10;
+                        }
+
+                        long toMatch = tempValue % divisor;
+                        tempValue /= divisor;
+                        bool isInValid = true;
+                        while (isInValid && tempValue > 0)
+                        {
+                            long nextBlock = tempValue % divisor;
+                            isInValid = toMatch == nextBlock;
                             if (isInValid)
                             {
-                                iSubIndex += iSubLen;
+                                tempValue /= divisor;
                             }
                         }
                         if (isInValid)
                         {
-                            invalidSum += i;
+                            invalidSum += saveValue;
                             break;
                         }
                     }
@@ -97,7 +127,7 @@ internal class DayClass
             foreach (string part in parts)
             {
                 string[] subParts = part.Split("-");
-                _values.Add((long.Parse(subParts[0]), long.Parse(subParts[1])));
+                _values.Add(new NumRange(long.Parse(subParts[0]), long.Parse(subParts[1])));
             }
 
             file.Close();

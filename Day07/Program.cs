@@ -4,8 +4,8 @@ DayClass day = new DayClass();
 var watch = new System.Diagnostics.Stopwatch();
 watch.Start();
 
-day.Part1();
-day.Part2();
+day.Part1and2();
+//day.Part2();
 
 watch.Stop();
 Console.WriteLine("Execution Time: {0} ms", watch.ElapsedMilliseconds);
@@ -23,41 +23,9 @@ internal class DayClass
         LoadData();
     }
 
-    public void Part1()
+     public void Part1and2()
     {
         int splitCount = 0;
-        int sPos = _manifold[0].IndexOf('S');
-        _manifold[1][sPos] = '|';
-
-        for (int row = 1; row < _manifold.Count-1; row++)
-        {
-            for (int col = 0; col < _manifold[row].Length; col++)
-            {
-                if (_manifold[row][col] == '|')
-                {
-                    if (_manifold[row + 1][col] == '.')
-                    {
-                        _manifold[row + 1][col] = '|';
-                    }
-                    else if (_manifold[row + 1][col] == '^')
-                    {
-                        _manifold[row + 1][col - 1] = '|';
-                        _manifold[row + 1][col + 1] = '|';
-                        splitCount++;
-                    }
-                }
-            }
-        }
-
-        Console.WriteLine("Part1: {0}", splitCount);
-    }
-
-    public void Part2()
-    {
-        _manifold = new();
-        _sums.Clear();
-        LoadData();
-
         int sPos = _manifold[0].IndexOf('S');
         _manifold[1][sPos] = '|';
         _sums[1][sPos] = 1;
@@ -79,6 +47,7 @@ internal class DayClass
                         _sums[row + 1][col - 1] += _sums[row][col];
                         _manifold[row + 1][col + 1] = '|';
                         _sums[row + 1][col + 1] += _sums[row][col];
+                        splitCount++;
                     }
                 }
             }
@@ -90,6 +59,7 @@ internal class DayClass
             sum += _sums[_sums.Count - 1][i];
         }
 
+        Console.WriteLine("Part1: {0}", splitCount);
         Console.WriteLine("Part2: {0}", sum);
     }
 

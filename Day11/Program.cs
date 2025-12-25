@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Day11;
+using System.IO;
 using System.Linq;
 
 DayClass day = new DayClass();
@@ -37,10 +38,19 @@ internal class DayClass
 
     public void Part2()
     {
+        long totalPaths = 0;
 
-        long rslt = 0;
+        long svrTofft = CountPaths2("svr", "fft", false);
+        long fftTodac = CountPaths2("fft", "dac", true);
+        long dacToout = CountPaths2("dac", "out", true);
 
-        Console.WriteLine("Part2: {0}", rslt);
+        long svrTodac = CountPaths2("svr", "dac", true);
+        long dacTofft = CountPaths2("dac", "fft", true);
+        long fftToout = CountPaths2("fft", "out", true);
+
+        totalPaths = (svrTofft * fftTodac * dacToout) + (svrTodac * dacTofft * fftToout);
+
+        Console.WriteLine("Part2: {0}",totalPaths);
     }
 
     private void ResolveConnections(List<Node> nodes)
@@ -74,6 +84,44 @@ internal class DayClass
             }
         }
     }
+
+    private long CountPaths2(string from, string target, bool init)
+    {
+        Node startNode = _nodes.First(r => r.Id == from);
+        if (init)
+        {
+            foreach (Node node in _nodes)
+            {
+                node.Visited = false;
+                node.NPaths = 0;
+            }
+        }
+
+        CountPaths2Recurse(startNode, target);
+
+        return startNode.NPaths;
+    }
+
+    private void CountPaths2Recurse(Node parentNode, string target)
+    {
+        foreach (Node node in parentNode.Connected)
+        {
+            if (node.Id == target)
+            {
+                parentNode.NPaths =  1;
+            }
+            else
+            {
+                if (node.Visited == false)
+                {
+                    CountPaths2Recurse(node, target);
+                }
+                parentNode.NPaths += node.NPaths;
+                node.Visited = true;
+            }
+        }
+    }
+ 
 
     private void LoadData()
     {
